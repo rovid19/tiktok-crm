@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@layer base {
+  * {
+    @apply outline-ring/50;
+  }
+  body {
+    @apply bg-zinc-900 text-white;
+  }
+}
