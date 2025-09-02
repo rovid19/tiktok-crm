@@ -19,8 +19,7 @@ def init_accounts_db():
         status TEXT DEFAULT 'idle',
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         last_run TEXT,
-        is_validated BOOLEAN DEFAULT FALSE,
-        curl_cmd TEXT DEFAULT NULL
+        cookies TEXT DEFAULT NULL
     )
     """)
 

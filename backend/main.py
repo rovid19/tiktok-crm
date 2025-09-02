@@ -11,13 +11,14 @@ from backend.db.db_videos import init_videos_db
 from pydantic import BaseModel
 from typing import Optional
 import tempfile
-
+import json
+from Crypto.Cipher import AES  
+import browser_cookie3
 
 class Account(BaseModel):
     email: Optional[str] = ""
     password: Optional[str] = ""
     proxy: Optional[str] = ""
-    curl_cmd: Optional[str] = ""
 
 
 
@@ -45,11 +46,11 @@ init_videos_db()
 def list_accounts():
     conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT id, email, password, chrome_profile_path, proxy, status, created_at, last_run, is_validated, curl_cmd FROM accounts")
+    c.execute("SELECT id, email, password, chrome_profile_path, proxy, status, created_at, last_run, cookies FROM accounts")
     rows = c.fetchall()
     conn.close()
 
-    return [{"id": r[0], "email": r[1], "password": r[2], "chrome_profile_path": r[3], "proxy": r[4], "status": r[5], "created_at": r[6], "last_run": r[7], "is_validated": r[8], "curl_cmd": r[9]} for r in rows]
+    return [{"id": r[0], "email": r[1], "password": r[2], "chrome_profile_path": r[3], "proxy": r[4], "status": r[5], "created_at": r[6], "last_run": r[7], "cookies": r[8]} for r in rows]
 
 @app.post("/accounts/add")
 def add_account(account: Account):
@@ -67,15 +68,14 @@ def add_account(account: Account):
 
     # Insert account into DB with assigned profile path
     c.execute("""
-        INSERT INTO accounts (id, email, password, chrome_profile_path, proxy, curl_cmd, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, 'idle', ?)
+        INSERT INTO accounts (id, email, password, chrome_profile_path, proxy,  status, created_at)
+        VALUES (?, ?, ?, ?, ?, 'idle', ?)
     """, (
         new_id,
         account.email,
         account.password,
         profile_path,
         account.proxy,
-        account.curl_cmd,
         current_time
     ))
 
@@ -106,7 +106,8 @@ def launch_profile(account_id: int):
         "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
         f"--user-data-dir={profile_path}",
         "--profile-directory=Default",
-        "https://www.tiktok.com/login"
+        "--remote-debugging-port=9222",
+        "https://www.tiktok.com"
     ]
     if proxy:
         cmd.insert(1, f"--proxy-server={proxy}")
@@ -114,8 +115,8 @@ def launch_profile(account_id: int):
     try:
         subprocess.Popen(cmd)  # async launch
         # Mark as validated in DB
-        c.execute("UPDATE accounts SET is_validated=1 WHERE id=?", (account_id,))
-        conn.commit()
+        #c.execute("UPDATE accounts SET is_validated=1 WHERE id=?", (account_id,))
+        #conn.commit()
     except Exception as e:
         conn.close()
         raise HTTPException(status_code=500, detail=str(e))
@@ -160,25 +161,19 @@ def delete_account(account_id: int):
 def run_scraper(account_id: int):
     conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT chrome_profile_path, proxy, email, curl_cmd FROM accounts WHERE id=?", (account_id,))
+    c.execute("SELECT chrome_profile_path, proxy, email FROM accounts WHERE id=?", (account_id,))
     row = c.fetchone()
     conn.close()
     if not row:
         raise HTTPException(status_code=404, detail="Account not found")
 
-    profile_path, proxy, email, curl_cmd = row
-
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".curl", mode="w")
-    tmp.write(curl_cmd)
-    tmp.flush()
-    tmp.close()
+    profile_path, proxy, email = row
 
     cmd = [
         "python3", "-m", "backend.scrapers.VideoScraper",
         f"--account={account_id}",
         f"--hashtag=creepypasta",
         f"--pages=3",
-        f"--curl_file={tmp.name}"
     ]
     if proxy:
         cmd.append(f"--proxy={proxy}")
@@ -240,3 +235,49 @@ def update_account(account_id: int, account: Account):
 
     conn.close()
     return {"status": "ok", "msg": f"Updated account {account_id}"}
+
+
+
+
+
+def extract_cookies_from_profile(profile_path: str):
+    """Extract TikTok cookies from a given Chrome profile (macOS-safe)."""
+    try:
+        cj = browser_cookie3.chrome(cookie_file=os.path.join(profile_path, "Default", "Cookies"))
+        cookies = {c.name: c.value for c in cj if "tiktok.com" in c.domain}
+        return json.dumps(cookies)
+    except Exception as e:
+        raise RuntimeError(f"Failed to extract cookies: {e}")
+
+@app.post("/accounts/{account_id}/fetch_cookies")
+def fetch_cookies(account_id: int):
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT chrome_profile_path FROM accounts WHERE id=?", (account_id,))
+    row = c.fetchone()
+    conn.close()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    profile_path = row[0]
+    if not os.path.exists(profile_path):
+        raise HTTPException(status_code=400, detail="Chrome profile path does not exist")
+
+    try:
+        cookies_json = extract_cookies_from_profile(profile_path)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to extract cookies: {e}")
+
+    # Save cookies into DB
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("UPDATE accounts SET cookies=? WHERE id=?", (cookies_json, account_id))
+    conn.commit()
+    conn.close()
+
+    return {
+        "status": "ok",
+        "msg": f"Fetched cookies for account {account_id}",
+        "cookies": json.loads(cookies_json)
+    }

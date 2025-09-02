@@ -1,0 +1,28 @@
+"filename", "language", "TypeScript", "TypeScript JSX", "CSS", "JSON with Comments", "JavaScript", "JSON", "XML", "Markdown", "HTML", "comment", "blank", "total"
+"/Users/rock/Documents/Projekti/tiktok-crm/client/README.md", "Markdown", 0, 0, 0, 0, 0, 0, 0, 58, 0, 0, 12, 70
+"/Users/rock/Documents/Projekti/tiktok-crm/client/components.json", "JSON", 0, 0, 0, 0, 0, 21, 0, 0, 0, 0, 1, 22
+"/Users/rock/Documents/Projekti/tiktok-crm/client/eslint.config.js", "JavaScript", 0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 2, 24
+"/Users/rock/Documents/Projekti/tiktok-crm/client/index.html", "HTML", 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 1, 14
+"/Users/rock/Documents/Projekti/tiktok-crm/client/package-lock.json", "JSON", 0, 0, 0, 0, 0, 3820, 0, 0, 0, 0, 1, 3821
+"/Users/rock/Documents/Projekti/tiktok-crm/client/package.json", "JSON", 0, 0, 0, 0, 0, 38, 0, 0, 0, 0, 1, 39
+"/Users/rock/Documents/Projekti/tiktok-crm/client/public/vite.svg", "XML", 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/App.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/App.tsx", "TypeScript JSX", 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 3, 12
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/Types.ts", "TypeScript", 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 20
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/components/AccountList.tsx", "TypeScript JSX", 0, 220, 0, 0, 0, 0, 0, 0, 0, 2, 15, 237
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/components/AccountPopup.tsx", "TypeScript JSX", 0, 240, 0, 0, 0, 0, 0, 0, 0, 8, 20, 268
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/components/Dashboard.tsx", "TypeScript JSX", 0, 105, 0, 0, 0, 0, 0, 0, 0, 4, 9, 118
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/components/ui/badge.tsx", "TypeScript JSX", 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 6, 47
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/components/ui/button.tsx", "TypeScript JSX", 0, 54, 0, 0, 0, 0, 0, 0, 0, 0, 6, 60
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/components/ui/card.tsx", "TypeScript JSX", 0, 83, 0, 0, 0, 0, 0, 0, 0, 0, 10, 93
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/components/ui/input.tsx", "TypeScript JSX", 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 4, 22
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/components/ui/label.tsx", "TypeScript JSX", 0, 19, 0, 0, 0, 0, 0, 0, 0, 0, 4, 23
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/index.css", "CSS", 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 2, 12
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/lib/utils.ts", "TypeScript", 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 7
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/main.tsx", "TypeScript JSX", 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 2, 6
+"/Users/rock/Documents/Projekti/tiktok-crm/client/src/vite-env.d.ts", "TypeScript", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"/Users/rock/Documents/Projekti/tiktok-crm/client/tsconfig.app.json", "JSON", 0, 0, 0, 0, 0, 23, 0, 0, 0, 2, 3, 28
+"/Users/rock/Documents/Projekti/tiktok-crm/client/tsconfig.json", "JSON with Comments", 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 1, 14
+"/Users/rock/Documents/Projekti/tiktok-crm/client/tsconfig.node.json", "JSON", 0, 0, 0, 0, 0, 21, 0, 0, 0, 2, 3, 26
+"/Users/rock/Documents/Projekti/tiktok-crm/client/vite.config.ts", "TypeScript", 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6
+"Total", "-", 28, 793, 10, 13, 22, 3923, 1, 58, 13, 19, 113, 4993

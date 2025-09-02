@@ -7,7 +7,7 @@ import {
   CardDescription,
 } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Play, Edit, Users, Pause, Trash2, Plus } from "lucide-react";
+import { Play, Edit, Users, Pause, Trash2, Globe } from "lucide-react";
 import { Button } from "./ui/button";
 import type { Account } from "../Types";
 
@@ -162,23 +162,14 @@ const AccountList = ({
                       : "Not Running"}
                   </Badge>
 
-                  {!account.is_validated ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleValidateAccount(account.id)}
-                      className="h-8 px-3 border-gray-600 bg-gray-900 text-gray-300 hover:bg-gray-700 hover:text-white cursor-pointer"
-                    >
-                      <Plus /> Validate Account
-                    </Button>
-                  ) : (
-                    <Badge
-                      variant="default"
-                      className="bg-green-600 text-white"
-                    >
-                      Validated
-                    </Badge>
-                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleValidateAccount(account.id)}
+                    className="h-8 px-3 border-gray-600 bg-gray-900 text-gray-300 hover:bg-gray-700 hover:text-white cursor-pointer"
+                  >
+                    <Globe /> Open Chrome Profile
+                  </Button>
 
                   <Button
                     variant="outline"

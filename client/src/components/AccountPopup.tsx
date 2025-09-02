@@ -3,16 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import {
-  X,
-  Plus,
-  User,
-  Lock,
-  FolderOpen,
-  Globe,
-  Edit,
-  Code,
-} from "lucide-react";
+import { X, Plus, User, Lock, Globe, Edit } from "lucide-react";
 import type { Account, AccountFormData } from "../Types";
 
 interface AccountPopupProps {
@@ -36,7 +27,6 @@ const AccountPopup = ({
     email: "",
     password: "",
     proxy: "",
-    curl_cmd: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -85,7 +75,6 @@ const AccountPopup = ({
           email: "",
           password: "",
           proxy: "",
-          curl_cmd: "",
         });
 
         // Close popup and refresh accounts list
@@ -103,6 +92,17 @@ const AccountPopup = ({
     }
   };
 
+  const handleSetCookies = async (accountId: string) => {
+    const response = await fetch(
+      `http://127.0.0.1:8000/accounts/${accountId}/fetch_cookies`,
+      {
+        method: "POST",
+      }
+    );
+    const data = await response.json();
+    console.log(data);
+  };
+
   useEffect(() => {
     if (accountId) {
       const existingAccount = accounts.find(
@@ -113,7 +113,6 @@ const AccountPopup = ({
           email: existingAccount.email,
           password: existingAccount.password,
           proxy: existingAccount.proxy,
-          curl_cmd: existingAccount.curl_cmd,
         });
       }
     }
@@ -206,24 +205,21 @@ const AccountPopup = ({
               </div>
             </div>
 
-            {/* Curl Command Field (Optional) */}
+            {/* SetCookies */}
             <div className="space-y-2">
-              <Label htmlFor="curl_cmd" className="text-white">
-                Curl Command (Optional)
+              <Label htmlFor="setCookies" className="text-white">
+                Set Cookies
               </Label>
-              <div className="relative">
-                <Code className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  id="curl_cmd"
-                  type="text"
-                  value={formData.curl_cmd}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("curl_cmd", e.target.value)
-                  }
-                  className="pl-10 bg-gray-800 border-gray-600 text-white placeholder:text-gray-400"
-                  placeholder="Enter curl command (optional)"
-                />
-              </div>
+              <Button
+                type="button"
+                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white cursor-pointer"
+                disabled={isLoading}
+                onClick={() => {
+                  handleSetCookies(accountId);
+                }}
+              >
+                Set Cookies
+              </Button>
             </div>
 
             {/* Error Message */}
