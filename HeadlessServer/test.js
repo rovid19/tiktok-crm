@@ -47,17 +47,12 @@ async function moveCursorOverlay(page, x, y) {
 }
 
 // --- Human-like helpers ---
-// keep last mouse position globally
 let lastMousePos = { x: 0, y: 0 };
 
-// --- Human-like helpers ---
 async function humanLikeMoveMouse(page, x, y) {
-  const start = { ...lastMousePos }; // use last position, not (0,0)
-
-  // Sometimes split into two segments (50% chance)
+  const start = { ...lastMousePos };
   const doSplit = Math.random() < 0.5;
 
-  // Intermediate waypoint if splitting
   let waypoints = [{ x, y }];
   if (doSplit) {
     const progress = 0.6 + Math.random() * 0.2;
@@ -71,7 +66,6 @@ async function humanLikeMoveMouse(page, x, y) {
     ];
   }
 
-  // Move through each waypoint
   for (const point of waypoints) {
     const steps = 15 + Math.floor(Math.random() * 10);
     const deltaX = (point.x - start.x) / steps;
@@ -88,39 +82,37 @@ async function humanLikeMoveMouse(page, x, y) {
     start.x = point.x;
     start.y = point.y;
   }
-
-  // update last position
   lastMousePos = { x, y };
 }
 
 async function humanLikeClick(page) {
   await page.mouse.down();
-  await new Promise((res) => setTimeout(res, 50 + Math.random() * 120)); // hold 50–170ms
+  await new Promise((res) => setTimeout(res, 50 + Math.random() * 120));
   await page.mouse.up();
 }
 
 // --- Pause video ---
-async function pauseFirstVideo(page) {
+async function moveMouseToFirstVideo(page) {
   try {
     const video = await page.$("video");
     if (video) {
       const box = await video.boundingBox();
       if (box) {
+        // Just move mouse to video area (center of the video)
         await humanLikeMoveMouse(
           page,
           box.x + box.width / 2,
           box.y + box.height / 2
         );
-        await humanLikeClick(
-          page,
-          box.x + box.width / 2,
-          box.y + box.height / 2
-        );
-        console.log("⏸️ Paused first video with human-like click");
+        console.log("🖱️ Moved mouse into first video (scroll area ready)");
+      } else {
+        console.log("⚠️ Could not get bounding box for video");
       }
+    } else {
+      console.log("⚠️ No video element found on screen");
     }
   } catch (e) {
-    console.log("⚠️ Could not pause video:", e.message);
+    console.log("⚠️ Could not move mouse to first video:", e.message);
   }
 }
 
@@ -143,121 +135,70 @@ async function scrollFYP(page, times = 5) {
   }
 }
 
-// --- Open Random Profile ---
-async function browseProfile(page) {
+// --- Search for hashtag ---
+async function searchForHashtag(page, hashtag) {
   try {
-    const links = await page.$$('a[data-e2e="video-author-avatar"]');
-    for (const link of links) {
-      const box = await link.boundingBox();
-      if (box && box.y >= 0 && box.y < 900) {
-        const x = box.x + box.width / 2 + (Math.random() - 0.5) * 4;
-        const y = box.y + box.height / 2 + (Math.random() - 0.5) * 4;
+    // --- 2. Find and click search ---
+    const rect = await page.evaluate(() => {
+      const el = Array.from(
+        document.querySelectorAll("div.TUXButton-label")
+      ).find((e) => e.textContent.trim() === "Search");
+      if (!el) return null;
+      const box = el.getBoundingClientRect();
+      return { x: box.x, y: box.y, width: box.width, height: box.height };
+    });
 
-        await humanLikeMoveMouse(page, x, y);
-        await humanLikeClick(page, x, y);
-        console.log(
-          `👤 Opened profile at (${Math.round(x)}, ${Math.round(y)})`
-        );
-
-        await page.waitForSelector('[id^="column-item-video-container-"]', {
-          timeout: 30000,
-        });
-
-        const thumbs = await page.$$('[id^="column-item-video-container-"]');
-        if (thumbs.length === 0) {
-          console.log("⚠️ No video thumbnails found on profile");
-          return;
-        }
-
-        const pickIndex = Math.floor(
-          Math.random() * Math.min(3, thumbs.length)
-        );
-        const chosen = thumbs[pickIndex];
-        const box2 = await chosen.boundingBox();
-
-        if (box2) {
-          const vx = box2.x + box2.width / 2 + (Math.random() - 0.5) * 5;
-          const vy = box2.y + box2.height / 2 + (Math.random() - 0.5) * 5;
-          await humanLikeMoveMouse(page, vx, vy);
-          await humanLikeClick(page, vx, vy);
-          const opened = await page
-            .waitForSelector('span[data-e2e="browse-like-icon"]', {
-              timeout: 5000,
-            })
-            .catch(() => null);
-
-          if (!opened) {
-            console.log("⚠️ Missed click, retrying...");
-            await chosen.click({ delay: 50 }); // fallback reliable click
-            await page.waitForSelector('button[data-e2e="browse-like-icon"]', {
-              timeout: 5000,
-            });
-          }
-
-          console.log(`▶️ Opened video #${pickIndex + 1} from profile`);
-
-          await page.waitForSelector("video", { timeout: 10000 });
-
-          const scrolls = 2 + Math.floor(Math.random() * 3);
-          await scrollFYP(page, scrolls);
-          console.log(`📜 Watched ${scrolls} videos inside profile`);
-        }
-        let chanceToReturnToFyp = 1;
-        if (Math.random() < chanceToReturnToFyp) {
-          console.log("Returning to FYP");
-          await returnToFyp(page);
-          return;
-        } else {
-          console.log("Not returning to FYP");
-          return;
-        }
-      }
+    if (!rect) {
+      console.log("⚠️ Search button not found");
+      return;
     }
-    console.log("⚠️ No visible profile avatar found in viewport");
+
+    const x = rect.x + rect.width / 2;
+    const y = rect.y + rect.height / 2;
+    await humanLikeMoveMouse(page, x, y);
+    await humanLikeClick(page);
+    console.log("🔍 Opened search box");
+
+    for (const char of hashtag) {
+      await page.keyboard.type(char, { delay: 100 + Math.random() * 200 });
+    }
+    console.log(`⌨️ Typed hashtag: ${hashtag}`);
+    await page.keyboard.press("Enter");
+
+    // scroll if chance is met
+    let scrollChance = 0.4;
+    if (Math.random() < scrollChance) {
+      const scrollTimes = Math.floor(Math.random() * (4 - 2 + 1)) + 2;
+      await scrollFYP(page, scrollTimes);
+      console.log(`✅ Scrolled ${scrollTimes} times`);
+    }
+
+    // --- 3. Wait until we see the request ---
+    await new Promise((res) => setTimeout(res, 2000));
+    page.on("request", async (req) => {
+      const url = req.url();
+      if (url.includes("/list/?")) {
+        const headers = req.headers();
+
+        // Collect cookies from Puppeteer
+        const cookies = await page.cookies();
+        const cookieHeader = cookies
+          .map((c) => `${c.name}=${c.value}`)
+          .join("; ");
+
+        // Build curl
+        const curl =
+          `curl '${url}' ` +
+          `-H 'user-agent: ${headers["user-agent"]}' ` +
+          `-H 'accept: ${headers["accept"] || "*/*"}' ` +
+          `-H 'referer: https://www.tiktok.com/' ` +
+          `-b '${cookieHeader}'`;
+
+        console.log("📡 CURL Command:\n", curl);
+      }
+    });
   } catch (e) {
-    console.log("⚠️ Error in browseProfile:", e.message);
-  }
-}
-
-async function returnToFyp(page) {
-  try {
-    const closeBtn = await page.$('button[data-e2e="browse-close"]');
-    if (closeBtn) {
-      const box = await closeBtn.boundingBox();
-      if (box) {
-        const x = box.x + box.width / 2 + (Math.random() - 0.5) * 4;
-        const y = box.y + box.height / 2 + (Math.random() - 0.5) * 4;
-        await humanLikeMoveMouse(page, x, y);
-        await humanLikeClick(page, x, y);
-
-        console.log(
-          `❌ Closed video modal at (${Math.round(x)}, ${Math.round(y)})`
-        );
-        await new Promise((res) =>
-          setTimeout(res, 1000 + Math.random() * 1000)
-        );
-      }
-    }
-
-    const fypBtn = await page.$('button[aria-label="For You"]');
-    if (fypBtn) {
-      const box = await fypBtn.boundingBox();
-      if (box) {
-        const x = box.x + box.width / 2 + (Math.random() - 0.5) * 4;
-        const y = box.y + box.height / 2 + (Math.random() - 0.5) * 4;
-
-        await humanLikeMoveMouse(page, x, y);
-        await humanLikeClick(page, x, y);
-
-        console.log(
-          `🏠 Returned to For You at (${Math.round(x)}, ${Math.round(y)})`
-        );
-      }
-    } else {
-      console.log("⚠️ Could not find 'For You' button");
-    }
-  } catch (e) {
-    console.log("⚠️ Error in returnToFyp:", e.message);
+    console.log("⚠️ Could not search hashtag:", e.message);
   }
 }
 
@@ -280,18 +221,18 @@ async function returnToFyp(page) {
 
   console.log("🌍 Attached to CRM Chrome profile with TikTok logged in");
 
-  // inject red cursor overlay
   await injectCursor(page);
 
   await new Promise((res) =>
     setTimeout(res, Math.floor(Math.random() * (6000 - 3000) + 3000))
   );
 
-  await pauseFirstVideo(page);
+  await moveMouseToFirstVideo(page);
 
-  const scrollTimes = Math.floor(Math.random() * (12 - 2 + 1)) + 2;
+  const scrollTimes = Math.floor(Math.random() * (4 - 2 + 1)) + 2;
   await scrollFYP(page, scrollTimes);
   console.log(`✅ Did ${scrollTimes} scrolls on FYP`);
 
-  await browseProfile(page);
+  // 🔍 Now search for a hashtag
+  await searchForHashtag(page, "#funny");
 })();

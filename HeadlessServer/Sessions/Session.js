@@ -1,9 +1,9 @@
-import SessionHelpers from "./SessionHelpers";
-import puppeteer from "puppeteer";
+import SessionHelpers from "./SessionHelpers.js";
+import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import SessionFYP from "./SessionFYP";
-import SessionOpenSearch from "./SessionOpenSearch";
-import SessionOpenProfile from "./SessionOpenProfile";
+import SessionFYP from "./SessionFYP.js";
+import SessionOpenSearch from "./SessionOpenSearch.js";
+import SessionOpenProfile from "./SessionOpenProfile.js";
 
 class Session {
   sessionHelpers = new SessionHelpers();
@@ -11,18 +11,33 @@ class Session {
   page;
 
   chooseRandomSession() {
-    const randomNumber = Math.floor(Math.random() * 3) + 1;
+    const randomNumber = 3;
     switch (randomNumber) {
       case 1:
-        this.randomSession = new SessionFYP();
+        console.log("SessionFYP");
+        this.randomSession = new SessionFYP(this.sessionHelpers, this.page);
         break;
       case 2:
-        this.randomSession = new SessionOpenSearch();
+        console.log("SessionOpenSearch");
+        this.randomSession = new SessionOpenSearch(
+          this.sessionHelpers,
+          this.page
+        );
         break;
       case 3:
-        this.randomSession = new SessionOpenProfile();
+        console.log("SessionOpenProfile");
+        this.randomSession = new SessionOpenProfile(
+          this.sessionHelpers,
+          this.page
+        );
         break;
     }
+  }
+
+  async scrollFypOnceMore() {
+    await this.sessionHelpers.moveMouseToFirstVideo(this.page);
+    const scrollTimes = Math.floor(Math.random() * (8 - 2 + 1)) + 2;
+    await this.sessionHelpers.scroll(this.page, scrollTimes);
   }
 
   async runSession() {
@@ -45,18 +60,26 @@ class Session {
 
     this.page = page;
 
+    // red cursor for testing
+    await this.sessionHelpers.injectCursor(this.page);
+
     // wait 3-6 seconds to continue
     await new Promise((res) =>
       setTimeout(res, Math.floor(Math.random() * (6000 - 3000) + 3000))
     );
 
     //FLOW
-    await this.sessionHelpers.pauseFirstVideo(this.page);
+    await this.sessionHelpers.moveMouseToFirstVideo(this.page);
     const scrollTimes = Math.floor(Math.random() * (8 - 2 + 1)) + 2;
     await this.sessionHelpers.scroll(this.page, scrollTimes);
     //RANDOM BEHAVIOURS
     this.chooseRandomSession();
-    await this.randomSession.runSession();
+    //randomSession run uvijek vraca true ili false
+    const shouldScrollOnFyp = await this.randomSession.runSession();
+    if (shouldScrollOnFyp) {
+      await this.scrollFypOnceMore();
+    }
+    await browser.close();
   }
 }
 

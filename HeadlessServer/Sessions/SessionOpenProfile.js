@@ -1,6 +1,8 @@
-import Session from "./Session";
-
-class SessionOpenProfile extends Session {
+class SessionOpenProfile {
+  constructor(sessionHelpers, page) {
+    this.sessionHelpers = sessionHelpers;
+    this.page = page;
+  }
   async browseProfile() {
     try {
       const links = await this.page.$$('a[data-e2e="video-author-avatar"]');
@@ -10,7 +12,8 @@ class SessionOpenProfile extends Session {
           const x = box.x + box.width / 2 + (Math.random() - 0.5) * 4;
           const y = box.y + box.height / 2 + (Math.random() - 0.5) * 4;
 
-          await this.sessionHelpers.humanLikeClick(this.page, x, y);
+          await this.sessionHelpers.humanLikeMoveMouse(this.page, x, y);
+          await this.sessionHelpers.humanLikeClick(this.page);
           console.log(
             `👤 Opened profile at (${Math.round(x)}, ${Math.round(y)})`
           );
@@ -43,18 +46,20 @@ class SessionOpenProfile extends Session {
             const vy = box2.y + box2.height / 2 + (Math.random() - 0.5) * 5;
 
             await this.sessionHelpers.humanLikeMoveMouse(this.page, vx, vy);
-            await this.sessionHelpers.humanLikeClick(this.page, vx, vy);
+            await this.sessionHelpers.humanLikeClick(this.page);
             console.log(`▶️ Opened video #${pickIndex + 1} from profile`);
+
+            await this.sessionHelpers.moveMouseToFirstVideo(this.page);
 
             await this.page.waitForSelector("video", { timeout: 10000 });
 
             const scrolls = 2 + Math.floor(Math.random() * 3);
-            await this.sessionHelperss.scroll(this.page, scrolls);
+            await this.sessionHelpers.scroll(this.page, scrolls);
             console.log(`📜 Watched ${scrolls} videos inside profile`);
           }
           let chanceToReturnToFyp = 0.5;
           if (Math.random() < chanceToReturnToFyp) {
-            await this.returnToFyp(this.page);
+            await this.returnToFyp();
             return;
           } else {
             return;
@@ -78,7 +83,7 @@ class SessionOpenProfile extends Session {
           const y = box.y + box.height / 2 + (Math.random() - 0.5) * 4;
 
           await this.sessionHelpers.humanLikeMoveMouse(this.page, x, y);
-          await this.sessionHelpers.humanLikeClick(this.page, x, y);
+          await this.sessionHelpers.humanLikeClick(this.page);
 
           console.log(
             `❌ Closed video modal at (${Math.round(x)}, ${Math.round(y)})`
@@ -90,7 +95,7 @@ class SessionOpenProfile extends Session {
       }
 
       // 2. Click "For You" button
-      const fypBtn = await page.$('button[aria-label="For You"]');
+      const fypBtn = await this.page.$('button[aria-label="For You"]');
       if (fypBtn) {
         const box = await fypBtn.boundingBox();
         if (box) {
@@ -98,7 +103,7 @@ class SessionOpenProfile extends Session {
           const y = box.y + box.height / 2 + (Math.random() - 0.5) * 4;
 
           await this.sessionHelpers.humanLikeMoveMouse(this.page, x, y);
-          await this.sessionHelpers.humanLikeClick(this.page, x, y);
+          await this.sessionHelpers.humanLikeClick(this.page);
 
           console.log(
             `🏠 Returned to For You at (${Math.round(x)}, ${Math.round(y)})`
@@ -114,6 +119,11 @@ class SessionOpenProfile extends Session {
 
   async runSession() {
     await this.browseProfile();
+    const chanceToScrollOnFyp = 0.5;
+    if (Math.random() < chanceToScrollOnFyp) {
+      return true;
+    }
+    return false;
   }
 }
 
