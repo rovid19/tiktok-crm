@@ -54,8 +54,8 @@ const AccountPopup = ({
       const response = await fetch(
         `${
           accountId
-            ? `http://127.0.0.1:8000/accounts/update/${accountId}`
-            : "http://127.0.0.1:8000/accounts/add"
+            ? `http://localhost:3000/api/accounts/update/${accountId}`
+            : "http://localhost:3000/api/accounts/add"
         }`,
         {
           method: accountId ? "PUT" : "POST",
@@ -90,17 +90,6 @@ const AccountPopup = ({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleSetCookies = async (accountId: string) => {
-    const response = await fetch(
-      `http://127.0.0.1:8000/accounts/${accountId}/fetch_cookies`,
-      {
-        method: "POST",
-      }
-    );
-    const data = await response.json();
-    console.log(data);
   };
 
   useEffect(() => {
@@ -203,23 +192,6 @@ const AccountPopup = ({
                   placeholder="Enter proxy (optional)"
                 />
               </div>
-            </div>
-
-            {/* SetCookies */}
-            <div className="space-y-2">
-              <Label htmlFor="setCookies" className="text-white">
-                Set Cookies
-              </Label>
-              <Button
-                type="button"
-                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white cursor-pointer"
-                disabled={isLoading}
-                onClick={() => {
-                  handleSetCookies(accountId);
-                }}
-              >
-                Set Cookies
-              </Button>
             </div>
 
             {/* Error Message */}

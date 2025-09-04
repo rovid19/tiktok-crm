@@ -32,7 +32,7 @@ const AccountList = ({
     if (fetchData) {
       const fetchAccounts = async () => {
         try {
-          const response = await fetch("http://127.0.0.1:8000/accounts");
+          const response = await fetch("http://localhost:3000/api/accounts");
           const data = await response.json();
           console.log(data);
           setAccounts(data);
@@ -48,7 +48,7 @@ const AccountList = ({
   const handleDeleteAccount = async (id: string) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/accounts/delete/${id}`,
+        `http://localhost:3000/api/accounts/delete/${id}`,
         {
           method: "DELETE",
         }
@@ -67,7 +67,7 @@ const AccountList = ({
     console.log("Running scraper for account:", id);
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/accounts/${id}/run_scraper`,
+        `http://localhost:3000/api/accounts/${id}/run_scraper`,
         {
           method: "POST",
         }
@@ -99,7 +99,7 @@ const AccountList = ({
   const handleValidateAccount = async (id: string) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/accounts/${id}/launch_profile`,
+        `http://localhost:3000/api/accounts/${id}/launch_profile`,
         {
           method: "POST",
         }
