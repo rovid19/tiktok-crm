@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-     "dev": "nodemon --watch src --ext ts --exec vite-node index.ts"
+    "dev": "nodemon --watch src --ext ts --exec vite-node index.ts"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +24,9 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "puppeteer-core": "^24.19.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"
   }

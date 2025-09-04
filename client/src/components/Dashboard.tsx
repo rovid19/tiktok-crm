@@ -15,7 +15,17 @@ const Dashboard = () => {
     (account) => account.status === "running"
   ).length;
 
-  console.log(accounts);
+  const handleGenerateTodaySessions = async () => {
+    const response = await fetch(
+      "http://localhost:3000/api/accounts/generate-today-sessions",
+      {
+        method: "POST",
+      }
+    );
+    if (response.ok) {
+      setFetchData(true);
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-950 p-6">
       {isAccountPopupOpen && (
@@ -88,16 +98,29 @@ const Dashboard = () => {
         </div>
 
         {/* Add Account Button */}
-        <div className="mb-6">
-          <Button
-            onClick={() => {
-              setIsAccountPopupOpen(true);
-            }}
-            className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 cursor-pointer border border-gray-700 text-white"
-          >
-            <Plus className="h-4 w-4" />
-            Add New Account
-          </Button>
+        <div className="flex items-center gap-2">
+          <div className="mb-6">
+            <Button
+              onClick={() => {
+                setIsAccountPopupOpen(true);
+              }}
+              className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 cursor-pointer border border-gray-700 text-white"
+            >
+              <Plus className="h-4 w-4" />
+              Add New Account
+            </Button>
+          </div>
+
+          {/* Generate Today's Sessions Button */}
+          <div className="mb-6">
+            <Button
+              onClick={handleGenerateTodaySessions}
+              className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 cursor-pointer border border-gray-700 text-white"
+            >
+              <Plus className="h-4 w-4" />
+              Generate Today's Sessions
+            </Button>
+          </div>
         </div>
 
         {/* Accounts List */}

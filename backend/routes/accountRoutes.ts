@@ -4,6 +4,7 @@ import {
   addAccount,
   deleteAccount,
   launchProfile,
+  generateTodaySessions,
 } from "../controllers/accountController";
 
 const router = Router();
@@ -17,6 +18,10 @@ router.delete(
 router.post(
   "/:account_id/launch_profile",
   launchProfile as unknown as RequestHandler
+);
+router.post(
+  "/generate-today-sessions",
+  generateTodaySessions as unknown as RequestHandler
 );
 
 export default router;

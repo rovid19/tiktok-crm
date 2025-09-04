@@ -18,7 +18,10 @@ def init_accounts_db():
         proxy TEXT,
         status TEXT DEFAULT 'idle',
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-        last_run TEXT,
+        sessions_completed_today INTEGER DEFAULT 0,
+        target_sessions INTEGER DEFAULT 0,
+        next_session_time TEXT DEFAULT NULL,
+        last_session_time TEXT DEFAULT NULL,
         cookies TEXT DEFAULT NULL
     )
     """)
